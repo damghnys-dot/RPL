@@ -11,12 +11,33 @@ const LoginScreen: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Persist role for demo purposes
-    localStorage.setItem('userRole', role);
 
-    if (role === 'student') navigate('/dashboard');
-    else if (role === 'staff') navigate('/staff');
-    else if (role === 'admin') navigate('/admin');
+    let isValid = false;
+    if (role === 'student') {
+      if ((nim === '202410370110329' || nim === '202410370110303') && password === '123') {
+        isValid = true;
+      }
+    } else if (role === 'staff') {
+      if (nim === 'StaffUMM' && password === '123') {
+        isValid = true;
+      }
+    } else if (role === 'admin') {
+      if (nim === 'AdminUMM' && password === '123') {
+        isValid = true;
+      }
+    }
+
+    if (isValid) {
+      // Persist role for demo purposes
+      localStorage.setItem('userRole', role);
+      localStorage.setItem('userIdentifier', nim);
+
+      if (role === 'student') navigate('/dashboard');
+      else if (role === 'staff') navigate('/staff');
+      else if (role === 'admin') navigate('/admin');
+    } else {
+      alert('Invalid credentials. Please use the correct NIM/Username and Password.');
+    }
   };
 
   return (
@@ -33,7 +54,11 @@ const LoginScreen: React.FC = () => {
         {(['student', 'staff', 'admin'] as const).map((r) => (
           <button
             key={r}
-            onClick={() => setRole(r)}
+            onClick={() => {
+              setRole(r);
+              setNim('');
+              setPassword('');
+            }}
             className={`flex-1 py-2 text-xs font-semibold rounded-lg capitalize transition-all ${
               role === r ? 'bg-white text-primary shadow-sm' : 'text-slate-400'
             }`}
@@ -46,13 +71,13 @@ const LoginScreen: React.FC = () => {
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
-            {role === 'student' ? 'NIM' : 'Email'}
+            {role === 'student' ? 'NIM' : 'Username'}
           </label>
           <div className="relative">
             <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder={role === 'student' ? '2100018001' : 'admin@ui.ac.id'}
+              placeholder={role === 'student' ? '202410370110329' : role === 'staff' ? 'StaffUMM' : 'AdminUMM'}
               className="w-full h-14 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
               value={nim}
               onChange={(e) => setNim(e.target.value)}

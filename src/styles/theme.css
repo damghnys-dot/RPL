@@ -13,7 +13,52 @@
 }
 
 @layer base {
+  html, body {
+    background-color: #1E3A8A;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+
   body {
-    @apply bg-slate-100 font-sans text-slate-900;
+    /* Mencegah overscroll bounce yang aneh di beberapa browser mobile */
+    overscroll-behavior-y: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #root {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #1E3A8A;
+    /* Memberikan ruang untuk notch dan navigasi gesture */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Saat scanner aktif, buat semuanya transparan secara paksa */
+  html.barcode-scanner-active,
+  body.barcode-scanner-active,
+  body.barcode-scanner-active #root,
+  body.barcode-scanner-active .min-h-dvh,
+  body.barcode-scanner-active main,
+  body.barcode-scanner-active .flex-1 {
+    background-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Sembunyikan fake status bar saat di HP (jika overlap) */
+  .fake-status-bar {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Tampilkan kembali di browser desktop untuk estetika */
+  .fake-status-bar {
+    display: flex;
   }
 }

@@ -7,18 +7,29 @@ import StatusBadge from '../components/StatusBadge';
 import { users, deposits } from '../data/mockData';
 import { cn } from '../utils/cn';
 
+import { useTheme } from '../context/ThemeContext';
+
 const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const user = users[0]; // Mock current user
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const loggedInNim = localStorage.getItem('userIdentifier');
+  const user = users.find(u => u.nim === loggedInNim) || users[0];
   const activeDeposit = deposits.find(d => d.status === 'active' && d.studentId === user.id);
 
   return (
-    <div className="flex-1 p-6 space-y-6">
+    <div className={cn(
+      "flex-1 p-6 space-y-6 transition-colors duration-300",
+      isDark ? "bg-slate-900" : "bg-white"
+    )}>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <p className="text-slate-500 text-xs font-medium uppercase tracking-widest">Good Morning,</p>
-          <h2 className="text-xl font-bold text-slate-800">{user.name.split(' ')[0]}!</h2>
+          <h2 className={cn("text-xl font-bold transition-colors", isDark ? "text-white" : "text-slate-800")}>
+            {user.name.split(' ')[0]}!
+          </h2>
         </div>
         <AvatarInitials name={user.name} size="md" />
       </div>
@@ -30,6 +41,7 @@ const StudentDashboard: React.FC = () => {
           animate={{ y: 0, opacity: 1 }}
           className="bg-primary rounded-3xl p-6 text-white shadow-xl shadow-primary/30 relative overflow-hidden"
         >
+          {/* ... existing card content ... */}
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
 
           <div className="flex justify-between items-start mb-6">
@@ -60,12 +72,15 @@ const StudentDashboard: React.FC = () => {
               onClick={() => navigate(`/qr-code/${activeDeposit.id}`)}
               className="w-full h-12 bg-white text-primary rounded-xl font-bold text-sm mt-2 flex items-center justify-center gap-2"
             >
-              Show QR Code
+              Pengambilan Helm (QR)
             </button>
           </div>
         </motion.div>
       ) : (
-        <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-8 text-center">
+        <div className={cn(
+          "border-2 border-dashed rounded-3xl p-8 text-center transition-colors",
+          isDark ? "bg-slate-800/50 border-slate-700" : "bg-slate-50 border-slate-200"
+        )}>
           <p className="text-slate-500 text-sm mb-4">You have no active helmet deposit.</p>
           <button
             onClick={() => navigate('/deposit')}
@@ -81,45 +96,52 @@ const StudentDashboard: React.FC = () => {
       <div className="grid grid-cols-4 gap-4">
         <ActionButton
           icon={<Plus className="text-primary" />}
-          label="Deposit"
+          label="Penyerahan"
           onClick={() => navigate('/deposit')}
+          isDark={isDark}
         />
         <ActionButton
           icon={<HistoryIcon className="text-secondary" />}
-          label="History"
+          label="Riwayat"
           onClick={() => navigate('/history')}
+          isDark={isDark}
         />
         <ActionButton
           icon={<MapPin className="text-success" />}
-          label="Racks"
+          label="Slot Helm"
           onClick={() => {}}
+          isDark={isDark}
         />
         <ActionButton
           icon={<BellIcon className="text-warning" />}
-          label="Inbox"
-          onClick={() => navigate('/notifications')}
+          label="Pembayaran"
+          onClick={() => {}}
+          isDark={isDark}
         />
       </div>
 
       {/* Recent Activity */}
       <div className="space-y-4 pt-2">
         <div className="flex justify-between items-center px-1">
-          <h3 className="text-sm font-bold text-slate-800">Recent Activity</h3>
+          <h3 className={cn("text-sm font-bold transition-colors", isDark ? "text-slate-200" : "text-slate-800")}>Recent Activity</h3>
           <button onClick={() => navigate('/history')} className="text-xs font-bold text-primary">View All</button>
         </div>
 
         <div className="space-y-3">
           {deposits.slice(0, 3).map((d) => (
-            <div key={d.id} className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
+            <div key={d.id} className={cn(
+              "p-4 rounded-2xl border flex items-center gap-4 transition-colors",
+              isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"
+            )}>
               <div className={cn(
                 "w-10 h-10 rounded-xl flex items-center justify-center",
-                d.status === 'active' ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-400"
+                d.status === 'active' ? "bg-primary/10 text-primary" : (isDark ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-400")
               )}>
                 <QrCode size={20} />
               </div>
               <div className="flex-1">
                 <div className="flex justify-between">
-                  <span className="text-xs font-bold text-slate-800">{d.id}</span>
+                  <span className={cn("text-xs font-bold transition-colors", isDark ? "text-slate-200" : "text-slate-800")}>{d.id}</span>
                   <span className="text-[10px] text-slate-400 font-medium">22 Jun</span>
                 </div>
                 <p className="text-[10px] text-slate-500 font-medium mt-0.5">{d.rackId} • 08:30 - 16:00</p>
@@ -133,12 +155,15 @@ const StudentDashboard: React.FC = () => {
   );
 };
 
-const ActionButton = ({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) => (
+const ActionButton = ({ icon, label, onClick, isDark }: { icon: React.ReactNode, label: string, onClick: () => void, isDark?: boolean }) => (
   <button onClick={onClick} className="flex flex-col items-center gap-2">
-    <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center">
+    <div className={cn(
+      "w-14 h-14 rounded-2xl shadow-sm border flex items-center justify-center transition-colors",
+      isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"
+    )}>
       {icon}
     </div>
-    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">{label}</span>
+    <span className={cn("text-[10px] font-bold uppercase tracking-tighter transition-colors", isDark ? "text-slate-500" : "text-slate-600")}>{label}</span>
   </button>
 );
 

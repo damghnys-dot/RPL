@@ -7,7 +7,8 @@ import { users, deposits, statistics } from '../data/mockData';
 
 const StaffDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const staff = users[1];
+  const loggedInId = localStorage.getItem('userIdentifier');
+  const staff = users.find(u => u.name === loggedInId && u.role === 'staff') || users[2];
 
   return (
     <div className="flex-1 flex flex-col p-6 space-y-6">
@@ -38,24 +39,24 @@ const StaffDashboard: React.FC = () => {
           <ScanLine size={28} />
         </div>
         <div className="text-left">
-          <h3 className="text-lg font-bold">Open Scanner</h3>
+          <h3 className="text-lg font-bold">Check-In / Check-Out</h3>
           <p className="text-white/60 text-xs font-medium">Verify & Process Deposits</p>
         </div>
         <ArrowRight className="ml-auto text-white/40" size={24} />
       </button>
 
-      {/* Quick Stats */}
+      {/* Quick Stats & Daily Report */}
       <div className="grid grid-cols-2 gap-4">
         <InfoCard
-          label="Today's Active"
-          value={deposits.filter(d => d.status === 'active').length}
-          icon={<Clock size={16} />}
-          trend={{ value: 12, isUp: true }}
+          label="Laporan Harian"
+          value={deposits.filter(d => d.status === 'completed' && d.endTime?.startsWith(new Date().toISOString().split('T')[0])).length}
+          icon={<CheckCircle size={16} />}
+          onClick={() => navigate('/admin/reports')}
         />
         <InfoCard
-          label="Processed"
-          value="48"
-          icon={<CheckCircle size={16} />}
+          label="Perhitungan Biaya"
+          value="Rp 2.000 / Jam"
+          icon={<Clock size={16} />}
         />
       </div>
 

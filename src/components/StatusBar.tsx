@@ -10,7 +10,7 @@ const StatusBar: React.FC = () => {
   }, []);
 
   return (
-    <div className="h-7 px-4 flex justify-between items-center text-[12px] font-medium text-slate-700 bg-white sticky top-0 z-50">
+    <div className="fake-status-bar h-7 px-4 flex justify-between items-center text-[12px] font-medium text-slate-700 bg-white sticky top-0 z-50">
       <div>
         {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
       </div>
